@@ -10,18 +10,38 @@ metadata: {"openclaw":{"os":["win32","linux"],"requires":{"bins":["python"]},"em
 
 ## 平台要求
 
-- **Windows**：无额外依赖
-- **Linux（原生桌面）**：需安装 xdotool（用于获取窗口信息）
-  ```bash
-  sudo apt install xdotool   # Debian/Ubuntu
-  sudo pacman -S xdotool     # Arch
-  sudo dnf install xdotool   # Fedora
-  ```
-- **WSL**：自动代理到 Windows 侧的 python.exe 执行，无需额外配置。前提是 Windows 侧 PATH 中有 python.exe 且已安装 RuntimeFlow 依赖。
+- **Windows**：
+  - 方式 1：下载 runtimeflow.exe（无需安装 Python）
+  - 方式 2：安装 Python 后 `pip install runtimeflow`
+
+- **Linux（X11 图形会话）**：
+  - 必须在 X11 桌面环境中运行（不支持 Wayland、无头服务器、纯 SSH 终端）
+  - 需要 DISPLAY 环境变量
+  - 需安装 xdotool：
+    ```bash
+    sudo apt install xdotool   # Debian/Ubuntu
+    sudo pacman -S xdotool     # Arch
+    sudo dnf install xdotool   # Fedora
+    ```
+
+- **WSL**：自动代理到 Windows python.exe 或 runtimeflow.exe 执行
 
 ## 命令
 
-所有命令通过 `python -m runtimeflow` 调用。
+**Windows exe 用户**：
+```bash
+runtimeflow.exe record <name>
+runtimeflow.exe play <name>
+runtimeflow.exe list
+runtimeflow.exe info <name>
+```
+
+**Python 安装用户**：
+```bash
+python -m runtimeflow record <name>
+# 或
+runtimeflow record <name>
+```
 
 ### 录制
 

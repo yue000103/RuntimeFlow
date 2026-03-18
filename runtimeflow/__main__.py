@@ -15,23 +15,40 @@ def _is_wsl():
 
 
 def _wsl_proxy():
-    """在 WSL 中透明代理到 Windows python.exe"""
+    """在 WSL 中透明代理到 Windows 侧执行，优先使用 exe"""
+    args = sys.argv[1:]
+
+    # 优先尝试 runtimeflow.exe
+    try:
+        ret = subprocess.call(["runtimeflow.exe"] + args)
+        sys.exit(ret)
+    except FileNotFoundError:
+        pass
+
+    # 回退到 python.exe -m runtimeflow
     project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     try:
         win_path = subprocess.check_output(
             ["wslpath", "-w", project_dir], text=True
         ).strip()
     except Exception:
-        print("错误: 无法转换 WSL 路径到 Windows 路径", file=sys.stderr)
+        print("错误: Windows 侧未找到 runtimeflow.exe 或 python.exe", file=sys.stderr)
+        print("请确保 Windows PATH 中有 runtimeflow.exe 或 python.exe", file=sys.stderr)
         sys.exit(1)
 
     env = os.environ.copy()
     env["PYTHONPATH"] = win_path
 
-    sys.exit(subprocess.call(
-        ["python.exe", "-m", "runtimeflow"] + sys.argv[1:],
-        env=env,
-    ))
+    try:
+        ret = subprocess.call(
+            ["python.exe", "-m", "runtimeflow"] + args,
+            env=env,
+        )
+        sys.exit(ret)
+    except FileNotFoundError:
+        print("错误: Windows 侧未找到 runtimeflow.exe 或 python.exe", file=sys.stderr)
+        print("请确保 Windows PATH 中有 runtimeflow.exe 或 python.exe", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

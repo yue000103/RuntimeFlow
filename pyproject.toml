@@ -5,12 +5,12 @@ build-backend = "setuptools.backends._legacy:_Backend"
 [project]
 name = "runtimeflow"
 version = "0.1.0"
-description = "Windows 桌面操作录制与回放工具"
+description = "桌面操作录制与回放工具，支持 Windows 和 Linux (X11)"
 requires-python = ">=3.10"
 dependencies = [
     "pynput>=1.7.6",
     "pyautogui>=0.9.54",
-    "pywin32>=306",
+    "pywin32>=306; sys_platform == 'win32'",
     "click>=8.1.0",
 ]
 
