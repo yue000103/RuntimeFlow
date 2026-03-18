@@ -11,12 +11,13 @@ metadata: {"openclaw":{"os":["win32","linux"],"requires":{"bins":["python"]},"em
 ## 平台要求
 
 - **Windows**：无额外依赖
-- **Linux**：需安装 xdotool（用于获取窗口信息）
+- **Linux（原生桌面）**：需安装 xdotool（用于获取窗口信息）
   ```bash
   sudo apt install xdotool   # Debian/Ubuntu
   sudo pacman -S xdotool     # Arch
   sudo dnf install xdotool   # Fedora
   ```
+- **WSL**：自动代理到 Windows 侧的 python.exe 执行，无需额外配置。前提是 Windows 侧 PATH 中有 python.exe 且已安装 RuntimeFlow 依赖。
 
 ## 命令
 
@@ -84,6 +85,6 @@ python -m runtimeflow info <name>
 
 ## 限制
 
-- 支持 Windows 和 Linux（X11），不支持 macOS 和 Wayland
+- 支持 Windows、Linux（X11）和 WSL，不支持 macOS 和 Wayland
 - 回放要求桌面环境与录制时完全一致（分辨率、DPI、窗口标题和位置）
 - 不支持图像识别、智能适配或跨环境回放
