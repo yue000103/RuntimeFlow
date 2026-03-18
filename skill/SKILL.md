@@ -24,7 +24,7 @@ metadata: {"openclaw":{"os":["win32","linux"],"requires":{"bins":["python"]},"em
     sudo dnf install xdotool   # Fedora
     ```
 
-- **WSL**：自动代理到 Windows python.exe 或 runtimeflow.exe 执行
+- **WSL**：首次运行自动在 Windows 侧创建 venv 并安装 runtimeflow，无需手动配置。前提是 Windows 侧已安装 Python。
 
 ## 命令
 

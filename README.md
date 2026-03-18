@@ -8,7 +8,7 @@
 |------|------|------|
 | Windows | ✅ | 支持 exe 独立运行或 pip 安装 |
 | Linux (X11) | ✅ | 需要 X11 图形会话 + xdotool |
-| WSL | ✅ | 自动代理到 Windows 侧执行 |
+| WSL | ✅ | 自动搜索 Windows Python，自建 venv，无需手动配置 |
 | macOS | ❌ | 不支持 |
 | Wayland | ❌ | 不支持 |
 
@@ -46,7 +46,12 @@ pip install runtimeflow
 pip install runtimeflow
 ```
 
-WSL 下会自动代理到 Windows 侧执行（优先使用 `runtimeflow.exe`，其次 `python.exe`）。
+WSL 下首次运行会自动完成以下步骤：
+1. 在 `/mnt/c/` 下搜索 Windows Python 安装
+2. 在 `C:\Users\<user>\.runtimeflow\venv\` 创建 Windows 虚拟环境
+3. 自动安装 runtimeflow 到 venv
+
+后续运行直接使用已创建的 venv，无需手动配置。唯一前提是 Windows 侧已安装 Python。
 
 ## 使用
 
@@ -83,8 +88,11 @@ python build_exe.py
 **Wayland 环境无法使用**
 RuntimeFlow 依赖 X11 协议，Wayland 不支持。可尝试在 Xwayland 兼容模式下运行，但不保证稳定。
 
-**WSL 代理失败**
-确保 Windows 侧 PATH 中有 `runtimeflow.exe` 或 `python.exe`（且已安装 RuntimeFlow 依赖）。
+**WSL 首次运行报错找不到 Python**
+确保 Windows 侧已安装 Python（从 https://python.org/downloads/ 下载），安装路径需在以下位置之一：
+- `C:\Python3*\`
+- `C:\Program Files\Python3*\`
+- `C:\Users\<user>\AppData\Local\Programs\Python\Python3*\`
 
 **回放时环境校验失败**
 回放要求分辨率、DPI、窗口标题与录制时完全一致，窗口位置允许 ±5px 偏差。根据错误提示调整环境后重试。
