@@ -38,38 +38,39 @@ def _find_windows_python():
     return None
 
 
-def _find_windows_home():
-    """查找 Windows 用户主目录"""
+def _find_windows_home(python_path=None):
+    """查找 Windows 用户主目录
+
+    优先从 Python 路径反推（如 /mnt/c/Users/Xxx/.../python.exe → /mnt/c/Users/Xxx），
+    回退到枚举 /mnt/c/Users/（排除系统目录，取第一个有 AppData 的）。
+    """
+    # 策略 1：从 Python 路径反推
+    if python_path:
+        prefix = "/mnt/c/Users/"
+        if prefix in python_path:
+            after = python_path[len(prefix):]
+            user = after.split("/")[0]
+            home = f"{prefix}{user}"
+            if os.path.isdir(home):
+                return home
+
+    # 策略 2：枚举
     skip = {"Public", "Default", "Default User", "All Users"}
     try:
         for name in os.listdir("/mnt/c/Users"):
             if name in skip:
                 continue
             p = f"/mnt/c/Users/{name}"
-            if os.path.isdir(p) and os.path.isdir(f"{p}/Desktop"):
+            if os.path.isdir(p) and os.path.isdir(f"{p}/AppData"):
                 return p
     except OSError:
         pass
     return None
 
 
-def _venv_paths():
-    """返回 (venv_dir, venv_python, sentinel) 三元组"""
-    home = _find_windows_home()
-    if not home:
-        return None, None, None
-    venv = f"{home}/.runtimeflow/venv"
-    return venv, f"{venv}/Scripts/python.exe", f"{venv}/.installed"
 
-
-def _bootstrap_venv(venv_dir, venv_python):
+def _bootstrap_venv(venv_dir, venv_python, host_py):
     """首次运行：创建 Windows venv 并安装 runtimeflow"""
-    host_py = _find_windows_python()
-    if not host_py:
-        print("错误: 未在 /mnt/c/ 下找到 Python", file=sys.stderr)
-        print("请安装 Python: https://python.org/downloads/", file=sys.stderr)
-        sys.exit(1)
-
     print(f"首次运行，正在创建 Windows 虚拟环境…")
     print(f"  Python : {host_py}")
     print(f"  Venv   : {venv_dir}")
@@ -102,13 +103,22 @@ def _bootstrap_venv(venv_dir, venv_python):
 
 def _wsl_proxy():
     """WSL 入口：自建 venv → 通过 venv python 执行"""
-    venv_dir, venv_python, sentinel = _venv_paths()
-    if not venv_dir:
+    host_py = _find_windows_python()
+    home = _find_windows_home(host_py)
+    if not home:
         print("错误: 未找到 Windows 用户目录 (/mnt/c/Users/)", file=sys.stderr)
         sys.exit(1)
 
+    venv_dir = f"{home}/.runtimeflow/venv"
+    venv_python = f"{venv_dir}/Scripts/python.exe"
+    sentinel = f"{venv_dir}/.installed"
+
     if not (os.path.exists(sentinel) and os.path.exists(venv_python)):
-        _bootstrap_venv(venv_dir, venv_python)
+        if not host_py:
+            print("错误: 未在 /mnt/c/ 下找到 Python", file=sys.stderr)
+            print("请安装 Python: https://python.org/downloads/", file=sys.stderr)
+            sys.exit(1)
+        _bootstrap_venv(venv_dir, venv_python, host_py)
 
     sys.exit(subprocess.call(
         [venv_python, "-m", "runtimeflow"] + sys.argv[1:]
