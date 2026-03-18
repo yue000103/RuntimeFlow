@@ -6,8 +6,10 @@ from datetime import datetime
 
 from runtimeflow.models import Flow
 
+DEFAULT_SKILLS_DIR = os.path.join(os.path.expanduser("~"), ".runtimeflow", "skills")
 
-def save_skill(flow: Flow, directory: str = "skills") -> str:
+
+def save_skill(flow: Flow, directory: str = DEFAULT_SKILLS_DIR) -> str:
     """保存 flow 为 JSON 文件，返回文件路径"""
     os.makedirs(directory, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -18,7 +20,7 @@ def save_skill(flow: Flow, directory: str = "skills") -> str:
     return filepath
 
 
-def load_skill(name: str, directory: str = "skills") -> Flow:
+def load_skill(name: str, directory: str = DEFAULT_SKILLS_DIR) -> Flow:
     """按名称加载最新的 skill"""
     if not os.path.isdir(directory):
         raise FileNotFoundError(f"目录不存在: {directory}")
@@ -36,7 +38,7 @@ def load_skill(name: str, directory: str = "skills") -> Flow:
         return Flow.from_dict(json.load(f))
 
 
-def list_skills(directory: str = "skills") -> list[dict]:
+def list_skills(directory: str = DEFAULT_SKILLS_DIR) -> list[dict]:
     """列出所有 skill 的摘要信息"""
     if not os.path.isdir(directory):
         return []
