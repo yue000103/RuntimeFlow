@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "runtimeflow"
+version = "0.1.0"
+description = "Windows 桌面操作录制与回放工具"
+requires-python = ">=3.10"
+dependencies = [
+    "pynput>=1.7.6",
+    "pyautogui>=0.9.54",
+    "pywin32>=306",
+    "click>=8.1.0",
+]
+
+[project.scripts]
+runtimeflow = "runtimeflow.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["runtimeflow*"]
