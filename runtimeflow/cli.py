@@ -21,10 +21,11 @@ def record(name):
     from runtimeflow.storage import save_skill
     from runtimeflow.models import Flow
 
-    click.echo("录制即将开始，3秒后开始捕获，按 F9 停止")
-    for i in range(3, 0, -1):
-        click.echo(f"  {i}...")
-        time.sleep(1)
+    from runtimeflow.overlay import StatusOverlay
+
+    overlay = StatusOverlay()
+    overlay.countdown(3, "录制即将开始", "按 F9 停止")
+    overlay.update("录制中", "●", "按 F9 停止")
 
     env = capture_environment()
     recorder = Recorder()
@@ -46,6 +47,8 @@ def record(name):
         duration_ms=duration,
     )
     filepath = save_skill(flow)
+    overlay.update("录制完成", "✓", f"{flow.event_count} 个事件")
+    overlay.close(delay_s=2)
     click.echo(f"\n录制完成！")
     click.echo(f"  名称: {name}")
     click.echo(f"  事件数: {flow.event_count}")
@@ -60,22 +63,24 @@ def play(name):
     from runtimeflow.environment import validate_environment
     from runtimeflow.player import Player
     from runtimeflow.storage import load_skill
+    from runtimeflow.overlay import StatusOverlay
 
     flow = load_skill(name)
     click.echo(f"已加载 skill: {flow.name} ({flow.event_count} 个事件)")
-    click.echo("请切换到目标窗口，10秒后开始回放，按 F10 中断")
-    for i in range(10, 0, -1):
-        click.echo(f"  {i}...")
-        time.sleep(1)
+
+    overlay = StatusOverlay()
+    overlay.countdown(10, "回放即将开始", "请切换到目标窗口")
 
     passed, diffs = validate_environment(flow.environment)
     if not passed:
+        overlay.update("环境校验失败", "✗", "")
+        overlay.close(delay_s=2)
         click.echo("环境校验未通过：")
         for d in diffs:
             click.echo(f"  - {d}")
         raise SystemExit(1)
 
-    click.echo("环境校验通过")
+    overlay.update("回放中", "●", "按 F10 中断")
 
     player = Player()
     player.play(flow.events)
@@ -84,6 +89,9 @@ def play(name):
             time.sleep(0.1)
     except KeyboardInterrupt:
         player.stop()
+
+    overlay.update("回放完成", "✓", "")
+    overlay.close(delay_s=2)
     click.echo("回放完成！")
 
 

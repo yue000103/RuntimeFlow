@@ -99,12 +99,16 @@ class Player:
 
     @staticmethod
     def _resolve_key(key_str: Optional[str]):
-        """反序列化按键：Key.enter → pynput Key 枚举，单字符 → KeyCode"""
+        """反序列化按键：Key.enter → pynput Key 枚举，<vk> → 虚拟键码，单字符 → KeyCode"""
         if not key_str:
             return KeyCode.from_char(" ")
         if key_str.startswith("Key."):
             return getattr(Key, key_str[4:])
-        return KeyCode.from_char(key_str)
+        if key_str.startswith("<") and key_str.endswith(">"):
+            return KeyCode.from_vk(int(key_str[1:-1]))
+        if len(key_str) == 1:
+            return KeyCode.from_char(key_str)
+        return KeyCode.from_vk(ord(key_str[0]))
 
     @staticmethod
     def _resolve_button(button_str: Optional[str]) -> Button:
