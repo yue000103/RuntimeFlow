@@ -1,12 +1,22 @@
 ---
 name: runtimeflow
-description: Windows 桌面操作录制与回放工具。录制鼠标/键盘事件为可复用 skill，在相同环境下精确回放。
-metadata: {"openclaw":{"os":["win32"],"requires":{"bins":["python"]},"emoji":"🖱️"}}
+description: 桌面操作录制与回放工具。录制鼠标/键盘事件为可复用 skill，在相同环境下精确回放。支持 Windows 和 Linux。
+metadata: {"openclaw":{"os":["win32","linux"],"requires":{"bins":["python"]},"emoji":"🖱️"}}
 ---
 
 # RuntimeFlow
 
-Windows 桌面操作录制与回放工具。将鼠标/键盘操作录制为 JSON skill 文件，在相同桌面环境下精确回放。
+桌面操作录制与回放工具。将鼠标/键盘操作录制为 JSON skill 文件，在相同桌面环境下精确回放。支持 Windows 和 Linux（X11）。
+
+## 平台要求
+
+- **Windows**：无额外依赖
+- **Linux**：需安装 xdotool（用于获取窗口信息）
+  ```bash
+  sudo apt install xdotool   # Debian/Ubuntu
+  sudo pacman -S xdotool     # Arch
+  sudo dnf install xdotool   # Fedora
+  ```
 
 ## 命令
 
@@ -74,6 +84,6 @@ python -m runtimeflow info <name>
 
 ## 限制
 
-- 仅支持 Windows
+- 支持 Windows 和 Linux（X11），不支持 macOS 和 Wayland
 - 回放要求桌面环境与录制时完全一致（分辨率、DPI、窗口标题和位置）
 - 不支持图像识别、智能适配或跨环境回放
