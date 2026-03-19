@@ -102,7 +102,7 @@ def _bootstrap_venv(venv_dir, venv_python, host_py):
 
 
 def _wsl_proxy():
-    """WSL 入口：自建 venv → 通过 venv python 执行"""
+    """WSL 入口：自建 venv → 通过 venv console script 执行（绕开 __main__.py 避免递归）"""
     host_py = _find_windows_python()
     home = _find_windows_home(host_py)
     if not home:
@@ -111,18 +111,18 @@ def _wsl_proxy():
 
     venv_dir = f"{home}/.runtimeflow/venv"
     venv_python = f"{venv_dir}/Scripts/python.exe"
+    venv_script = f"{venv_dir}/Scripts/runtimeflow.exe"
     sentinel = f"{venv_dir}/.installed"
 
-    if not (os.path.exists(sentinel) and os.path.exists(venv_python)):
+    if not (os.path.exists(sentinel) and os.path.exists(venv_script)):
         if not host_py:
             print("错误: 未在 /mnt/c/ 下找到 Python", file=sys.stderr)
             print("请安装 Python: https://python.org/downloads/", file=sys.stderr)
             sys.exit(1)
         _bootstrap_venv(venv_dir, venv_python, host_py)
 
-    sys.exit(subprocess.call(
-        [venv_python, "-m", "runtimeflow"] + sys.argv[1:]
-    ))
+    # 直接调 console script，走 cli:main，不经过 __main__.py
+    sys.exit(subprocess.call([venv_script] + sys.argv[1:]))
 
 
 if __name__ == "__main__":
