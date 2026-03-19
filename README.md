@@ -9,7 +9,7 @@
 | Windows | ✅ | 支持 exe 独立运行或 pip 安装 |
 | Linux (X11) | ✅ | 需要 X11 图形会话 + xdotool |
 | WSL | ✅ | 自动搜索 Windows Python，自建 venv，无需手动配置 |
-| macOS | ❌ | 不支持 |
+| macOS | ✅ | 需授权辅助功能和输入监控权限 |
 | Wayland | ❌ | 不支持 |
 
 ## 安装
@@ -39,6 +39,19 @@ pip install runtimeflow
 ```
 
 必须在 X11 图形桌面环境中运行，需要 `DISPLAY` 环境变量。
+
+### macOS
+
+```bash
+pip install runtimeflow
+```
+
+首次运行前需授权权限（否则 pynput 无法监听键鼠）：
+
+1. 系统设置 → 隐私与安全 → 辅助功能 → 添加你的终端应用（Terminal / iTerm2）或 Python
+2. 系统设置 → 隐私与安全 → 输入监控 → 添加你的终端应用或 Python
+
+授权后需重启终端才能生效。
 
 ### WSL
 
@@ -96,6 +109,9 @@ RuntimeFlow 依赖 X11 协议，Wayland 不支持。可尝试在 Xwayland 兼容
 
 **回放时环境校验失败**
 回放要求分辨率、DPI、窗口标题与录制时完全一致，窗口位置允许 ±5px 偏差。根据错误提示调整环境后重试。
+
+**macOS 上录制无反应**
+需要在系统设置 → 隐私与安全中同时授权「辅助功能」和「输入监控」权限，授权后重启终端。
 
 ## OpenClaw Skill
 

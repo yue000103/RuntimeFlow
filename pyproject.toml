@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "runtimeflow"
 version = "0.1.0"
-description = "桌面操作录制与回放工具，支持 Windows 和 Linux (X11)"
+description = "桌面操作录制与回放工具，支持 Windows / Linux / macOS"
 requires-python = ">=3.10"
 dependencies = [
     "pynput>=1.7.6",

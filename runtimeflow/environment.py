@@ -7,6 +7,7 @@ from runtimeflow.models import EnvironmentSnapshot
 
 _IS_WINDOWS = platform.system() == "Windows"
 _IS_LINUX = platform.system() == "Linux"
+_IS_MACOS = platform.system() == "Darwin"
 
 if _IS_WINDOWS:
     import ctypes
@@ -112,12 +113,70 @@ def _capture_linux() -> EnvironmentSnapshot:
     )
 
 
+def _capture_macos() -> EnvironmentSnapshot:
+    """macOS 环境捕获（依赖 osascript / system_profiler）"""
+    import pyautogui
+    screen_width, screen_height = pyautogui.size()
+
+    # DPI: Retina 显示器 → 2.0，否则 1.0
+    dpi_scale = 1.0
+    try:
+        out = subprocess.check_output(
+            ["system_profiler", "SPDisplaysDataType"], text=True, timeout=5
+        )
+        if "Retina" in out:
+            dpi_scale = 2.0
+    except Exception:
+        pass
+
+    # 窗口信息: AppleScript
+    window_title = ""
+    window_x, window_y, window_width, window_height = 0, 0, 0, 0
+    try:
+        script = (
+            'tell application "System Events"\n'
+            "  set fp to first application process whose frontmost is true\n"
+            "  set w to first window of fp\n"
+            "  set wName to name of fp\n"
+            "  set wPos to position of w\n"
+            "  set wSize to size of w\n"
+            '  return wName & "," & (item 1 of wPos) & "," & (item 2 of wPos) & "," & (item 1 of wSize) & "," & (item 2 of wSize)\n'
+            "end tell"
+        )
+        out = subprocess.check_output(
+            ["osascript", "-e", script], text=True, timeout=5
+        ).strip()
+        parts = out.split(",")
+        if len(parts) >= 5:
+            window_title = parts[0]
+            window_x = int(parts[1])
+            window_y = int(parts[2])
+            window_width = int(parts[3])
+            window_height = int(parts[4])
+    except Exception:
+        pass
+
+    return EnvironmentSnapshot(
+        platform=platform.platform(),
+        screen_width=screen_width,
+        screen_height=screen_height,
+        dpi_scale=dpi_scale,
+        window_title=window_title,
+        window_x=window_x,
+        window_y=window_y,
+        window_width=window_width,
+        window_height=window_height,
+    )
+
+
 def capture_environment() -> EnvironmentSnapshot:
     """捕获当前桌面环境快照"""
     if _IS_WINDOWS:
         return _capture_windows()
     elif _IS_LINUX:
         return _capture_linux()
+    elif _IS_MACOS:
+        return _capture_macos()
     else:
         raise RuntimeError(f"不支持的平台: {platform.system()}")
 

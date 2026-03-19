@@ -1,8 +1,16 @@
 """屏幕状态浮窗 — 右下角置顶小窗口，贯穿录制/回放全生命周期"""
 
+import platform
 import threading
 import queue
 import tkinter as tk
+
+if platform.system() == "Darwin":
+    _FONT_FAMILY = "PingFang SC"
+elif platform.system() == "Windows":
+    _FONT_FAMILY = "Microsoft YaHei"
+else:
+    _FONT_FAMILY = "Noto Sans CJK SC"
 
 
 class StatusOverlay:
@@ -29,7 +37,7 @@ class StatusOverlay:
         frame.pack()
 
         self._title_label = tk.Label(
-            frame, text="", font=("Microsoft YaHei", 11),
+            frame, text="", font=(_FONT_FAMILY, 11),
             fg="#aaaaaa", bg="#1a1a2e",
         )
         self._title_label.pack()
@@ -41,7 +49,7 @@ class StatusOverlay:
         self._num_label.pack()
 
         self._sub_label = tk.Label(
-            frame, text="", font=("Microsoft YaHei", 10),
+            frame, text="", font=(_FONT_FAMILY, 10),
             fg="#666666", bg="#1a1a2e",
         )
         self._sub_label.pack()
