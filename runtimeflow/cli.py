@@ -131,3 +131,7 @@ def info(name):
     click.echo(f"  DPI: {env.dpi_scale}")
     click.echo(f"  窗口: {env.window_title}")
     click.echo(f"  位置: ({env.window_x}, {env.window_y}) {env.window_width}x{env.window_height}")
+
+
+if __name__ == "__main__":
+    main()

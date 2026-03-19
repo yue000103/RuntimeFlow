@@ -111,18 +111,24 @@ def _wsl_proxy():
 
     venv_dir = f"{home}/.runtimeflow/venv"
     venv_python = f"{venv_dir}/Scripts/python.exe"
-    venv_script = f"{venv_dir}/Scripts/runtimeflow.exe"
     sentinel = f"{venv_dir}/.installed"
 
-    if not (os.path.exists(sentinel) and os.path.exists(venv_script)):
+    if not (os.path.exists(sentinel) and os.path.exists(venv_python)):
         if not host_py:
             print("错误: 未在 /mnt/c/ 下找到 Python", file=sys.stderr)
             print("请安装 Python: https://python.org/downloads/", file=sys.stderr)
             sys.exit(1)
         _bootstrap_venv(venv_dir, venv_python, host_py)
 
-    # 直接调 console script，走 cli:main，不经过 __main__.py
-    sys.exit(subprocess.call([venv_script] + sys.argv[1:]))
+    # 优先用 console script（不经过 __main__.py）
+    venv_exe = f"{venv_dir}/Scripts/runtimeflow.exe"
+    if os.path.exists(venv_exe):
+        sys.exit(subprocess.call([venv_exe] + sys.argv[1:]))
+
+    # 回退：直接调 runtimeflow.cli 模块，绕开 __main__.py
+    sys.exit(subprocess.call(
+        [venv_python, "-m", "runtimeflow.cli"] + sys.argv[1:]
+    ))
 
 
 if __name__ == "__main__":
